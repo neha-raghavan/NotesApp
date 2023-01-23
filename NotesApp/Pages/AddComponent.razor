@@ -1,0 +1,68 @@
+﻿@page "/notes/add"
+@page "/notes/edit/{Note_Id:int}"
+@using NotesApp.Models;
+@using Services
+@inject INoteService noteService
+<PageTitle>@Title</PageTitle>
+
+<h3>@Title</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@note" OnValidSubmit="Save">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label for="Title">Title</label>
+                <InputText class="form-control" @bind-Value="note.Title" />
+                <ValidationMessage For="@(()=>note.Title)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Content">Content</label>
+                <InputText class="form-control" @bind-Value="note.Content" />
+                <ValidationMessage For="@(()=>note.Content)" />
+            </div>
+
+            <div class="my-2">
+                @message
+            </div>
+
+            <div class="my-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Note_Id { get; set; }
+    private string message = string.Empty;
+    Models.Note note = new();
+    private string Title = "Add Person";
+
+    private void Save()
+    {
+        message = "wait...";
+        if (noteService.AddUpdate(note))
+        {
+            message = "Sucessfully added";
+            note = new();
+        }
+        else
+        {
+            message = "Could not saved";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Note_Id > 0)
+        {
+            Title = "Update Note";
+            note = noteService.FindById(Note_Id);
+        }
+        base.OnInitialized();
+    }
+}
